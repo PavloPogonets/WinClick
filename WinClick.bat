@@ -1,7 +1,4 @@
 @echo off
-	cls
-	Title WinClick by MartyFiles
-Rem https://t.me/martyfiles
 	Color 0f
 	Mode 20,1
 	chcp 65001 >nul
@@ -9,39 +6,123 @@ Rem https://t.me/martyfiles
 	SetLocal EnableDelayedExpansion
 	cd /d "%~dp0\Work"
 	reg query "HKU\S-1-5-19" >nul 2>&1 || (Helper /Elevate "%~f0" && exit || %ch% {red} Права не выданы.{\n#}&& pause>nul && exit)
-
-Rem Установка переменных
 	set "TI=NSudoLG -U:T -P:E -ShowWindowMode:Hide -Wait cmd.exe /c"
 	
-REM Принудительный запуск в CMD
 	reg query "HKCU\Console\%%%%Startup" /v DelegationConsole | find /i "B23D10C0" >nul 2>&1 || (
 	tasklist /fi "imagename eq WindowsTerminal.exe" 2>nul | find /i "WindowsTerminal" >nul 2>&1 && (
 	for %%p in (DelegationConsole DelegationTerminal) do reg add "HKCU\Console\%%%%Startup" /v "%%p" /t reg_sz /d "{B23D10C0-E52E-411E-9D5B-C09FDF709C7D}" /f >nul 2>&1
 	start "" "%~f0" && exit
 ))
-
-
-Rem Скрытие консоли и проверка версии
-	call :WinVer && exit /b
-	start /b "" Helper /Overlay "Скоро ваша Windows 11 станет лучше" /Font "Impact" /Size "40"
 	Helper /HideConsole
-	timeout /t 3 /nobreak >nul 2>&1
-	
-	start /b "" Helper /Overlay "Удаление мусора `n`n [1/13]" /Font "Impact" /Size "40"
+	call :WinVer
+
 	sc query wuauserv | find /i "RUNNING" >nul 2>&1 && (
 		net stop wuauserv >nul 2>&1
 		timeout /t 1 /nobreak >nul 2>&1
 		sc query wuauserv | find /i "RUNNING" >nul 2>&1 && %TI% net stop wuauserv
 	)
+	
+	
+:loop
+    if "%~1"=="" start /b "" Helper /Overlay & exit
+    set "arg=%~1"
+    if /i "%arg%"=="/RemoveUpdateFiles" call :RemoveOverlay & call :RemoveUpdateFiles
+    if /i "%arg%"=="/RemoveStoreCache" call :RemoveOverlay & call :RemoveStoreCache
+    if /i "%arg%"=="/RemoveExplorerCache" call :RemoveOverlay & call :RemoveExplorerCache
+    if /i "%arg%"=="/CleanWinSxS" call :RemoveOverlay & call :CleanWinSxS
+    if /i "%arg%"=="/RemoveJunkFolders" call :RemoveOverlay & call :RemoveJunkFolders
+    if /i "%arg%"=="/RemoveOldDrivers" call :RemoveOverlay & call :RemoveOldDrivers
+    if /i "%arg%"=="/RemoveShellBags" call :RemoveOverlay & call :RemoveShellBags
+    
+    if /i "%arg%"=="/RemoveAppx" call :AppOverlay & call :RemoveAppx
+    if /i "%arg%"=="/RemoveOneDrive" call :AppOverlay & call :RemoveOneDrive
+    if /i "%arg%"=="/CleanStartMenu" call :AppOverlay & call :CleanStartMenu
+    if /i "%arg%"=="/RemoveRemoteAssistant" call :AppOverlay & call :RemoveRemoteAssistant
+	
+    if /i "%arg%"=="/RemoveEdge" call :EdgeOverlay & call :RemoveEdge
+    if /i "%arg%"=="/RemoveEdgeWebView" call :WebViewOverlay & call :RemoveEdgeWebView
+    
+    if /i "%arg%"=="/RemoveDefender" call :DefenderOverlay & call :RemoveDefender
+	
+    if /i "%arg%"=="/RemoveComponents" call :ComponentsOverlay & call :RemoveComponents
+	
+    if /i "%arg%"=="/DisableTasks" call :TasksOverlay & call :DisableTasks
+    
+    if /i "%arg%"=="/DisableHibernate" call :OptimizationOverlay & call :DisableHibernate
+    if /i "%arg%"=="/DisableReservedStorage" call :OptimizationOverlay & call :DisableReservedStorage
+    if /i "%arg%"=="/DisableRestorePoints" call :OptimizationOverlay & call :DisableRestorePoints
+    if /i "%arg%"=="/DelayedServices" call :OptimizationOverlay & call :DelayedServices
+    if /i "%arg%"=="/SystemLog" call :OptimizationOverlay & call :SystemLog
+    if /i "%arg%"=="/BoostIconCache" call :OptimizationOverlay & call :BoostIconCache
+    if /i "%arg%"=="/SvcSplit" call :OptimizationOverlay & call :SvcSplit
+    if /i "%arg%"=="/FastFolders" call :OptimizationOverlay & call :FastFolders
+    if /i "%arg%"=="/DisableVBS" call :OptimizationOverlay & call :DisableVBS
+    if /i "%arg%"=="/DisableGameDVR" call :OptimizationOverlay & call :DisableGameDVR
+    if /i "%arg%"=="/UltimatePerformance" call :OptimizationOverlay & call :UltimatePerformance
+    if /i "%arg%"=="/DisableResume" call :OptimizationOverlay & call :DisableResume 
+    
+    if /i "%arg%"=="/DisableWUDrivers" call :UpdateOverlay & call :DisableWUDrivers
+    if /i "%arg%"=="/DisableDefenderUpdates" call :UpdateOverlay & call :DisableDefenderUpdates
+    if /i "%arg%"=="/PauseUpdates" call :UpdateOverlay & call :PauseUpdates
+    if /i "%arg%"=="/DisableAutoUpdates" call :UpdateOverlay & call :DisableAutoUpdates
+    
+    if /i "%arg%"=="/DisableUAC" call :TweaksOverlay & call :DisableUAC
+    if /i "%arg%"=="/EnableAdmin" call :TweaksOverlay & call :EnableAdmin
+    if /i "%arg%"=="/UnlockRegion" call :TweaksOverlay & call :UnlockRegion 
+    if /i "%arg%"=="/KillFreezeApps" call :TweaksOverlay & call :KillFreezeApps
+    if /i "%arg%"=="/DisableRemote" call :TweaksOverlay & call :DisableRemote
+    if /i "%arg%"=="/DisableStickyKeys" call :TweaksOverlay & call :DisableStickyKeys
+    if /i "%arg%"=="/TTL" call :TweaksOverlay & call :TTL
+    if /i "%arg%"=="/DisableNotificationsAds" call :TweaksOverlay & call :DisableNotificationsAds
+    if /i "%arg%"=="/DNS" call :TweaksOverlay & call :DNS
+    
+    if /i "%arg%"=="/InstallDrivers" call :DriversOverlay & call :InstallDrivers
+	
+    if /i "%arg%"=="/InstallVC" call :VisualCOverlay & call :InstallVC
+    if /i "%arg%"=="/InstallDX" call :DirectXOverlay & call :InstallDX
+    
+    if /i "%arg%"=="/RemoveHome" call :VisualOverlay & call :RemoveHome
+    if /i "%arg%"=="/RemoveGallery" call :VisualOverlay & call :RemoveGallery
+    if /i "%arg%"=="/RemoveNetwork" call :VisualOverlay & call :RemoveNetwork
+    if /i "%arg%"=="/DarkTheme" call :VisualOverlay & call :DarkTheme
+    if /i "%arg%"=="/SetWallpaper" call :VisualOverlay & call :SetWallpaper
+    if /i "%arg%"=="/BlueIcons" call :VisualOverlay & call :BlueIcons
+    if /i "%arg%"=="/Icaros" call :VisualOverlay & call :Icaros
+    if /i "%arg%"=="/TraySeconds" call :VisualOverlay & call :TraySeconds
+    if /i "%arg%"=="/TrayDate" call :VisualOverlay & call :TrayDate
+    if /i "%arg%"=="/TaskbarEndTask" call :VisualOverlay & call :TaskbarEndTask
+    if /i "%arg%"=="/RemoveTaskbarIcons" call :VisualOverlay & call :RemoveTaskbarIcons
+    if /i "%arg%"=="/HideRecommended" call :VisualOverlay & call :HideRecommended
+    if /i "%arg%"=="/StartSettingsIcon" call :VisualOverlay & call :StartSettingsIcon
+    if /i "%arg%"=="/WallpaperQuality" call :VisualOverlay & call :WallpaperQuality
+    if /i "%arg%"=="/RemoveLockScreen" call :VisualOverlay & call :RemoveLockScreen
+    if /i "%arg%"=="/NoIconShadow" call :VisualOverlay & call :NoIconShadow
+    if /i "%arg%"=="/ExplorerThisPC" call :VisualOverlay & call :ExplorerThisPC
+    if /i "%arg%"=="/ShowExtensions" call :VisualOverlay & call :ShowExtensions
+	
+    if /i "%arg%"=="/CompressOS" call :CompressOverlay & call :CompressOS
+	if /i "%arg%"=="/CompressDrive" call :CompressDriveOverlay & call :CompressDrive
+    shift
+    goto :loop
+
+
+:RemoveUpdateFiles
 Rem Удаление файлов обновлений
 	del /q /f /s "%SystemRoot%\SoftwareDistribution\Download\*.*" >nul 2>&1
 	rd /q /s "%SystemRoot%\SoftwareDistribution\Download\" >nul 2>&1
 	del /q /f /s "%SystemRoot%\SoftwareDistribution\Download" >nul 2>&1
 	del /q /f /s "%ProgramFiles(x86)%\Microsoft\EdgeUpdate\Download\*.*" >nul 2>&1
 	rd /q /s "%ProgramFiles(x86)%\Microsoft\EdgeUpdate\Download\" >nul 2>&1
+	rd /q /s "%ProgramFiles(x86)%\Microsoft\EdgeUpdate\Download\" >nul 2>&1
+	exit /b
+
+:RemoveStoreCache
 Rem Удаление кэша Windows Store
 	del /q /f /s "%userprofile%\AppData\Local\Packages\Microsoft.WindowsStore_8wekyb3d8bbwe\LocalCache\*.*" >nul 2>&1
 	rd /q /s "%userprofile%\AppData\Local\Packages\Microsoft.WindowsStore_8wekyb3d8bbwe\LocalCache\" >nul 2>&1
+	exit /b
+
+:RemoveExplorerCache
 Rem Удаление кэша Проводника
 	pushd "%LocalAppData%\Microsoft\Windows\Explorer" >nul 2>&1
 	del /s /q /a:h "IconCache*" "thumbcache*" >nul 2>&1
@@ -52,24 +133,42 @@ Rem Удаление кэша Проводника
 	if exist IconCache.db-wal del /a /q IconCache.db-wal >nul 2>&1
 	del /s /q /a:h "IconCache*" "thumbcache*" >nul 2>&1
 	popd
+	exit /b
+	
+:CleanWinSxS
 Rem Очистка WinSxS
 	Dism /online /Cleanup-Image /StartComponentCleanup /ResetBase >nul 2>&1
+	exit /b
+	
+:RemoveJunkFolders
 Rem Удаление лишних папок на диске С
 	for %%F in ("%SystemDrive%\Windows.old" "%SystemDrive%\PerfLogs" "%SystemDrive%\inetpub") do %TI% rd /q /s %%F
+	exit /b
+	
+:RemoveOldDrivers
 Rem Удаления старых драйверов
 chcp 866 >nul 
 PowerShell -encodedCommand JABkAGkAcwBtAE8AdQB0ACAAPQAgAGQAaQBzAG0AIAAvAG8AbgBsAGkAbgBlACAALwBnAGUAdAAtAGQAcgBpAHYAZQByAHMADQAKACQATABpAG4AZQBzACAAPQAgACQAZABpAHMAbQBPAHUAdAAgAHwAIABzAGUAbABlAGMAdAAgAC0AUwBrAGkAcAAgADEAMAANAAoAJABPAHAAZQByAGEAdABpAG8AbgAgAD0AIAAiAHQAaABlAE4AYQBtAGUAIgANAAoAJABEAHIAaQB2AGUAcgBzACAAPQAgAEAAKAApAA0ACgBmAG8AcgBlAGEAYwBoACAAKAAgACQATABpAG4AZQAgAGkAbgAgACQATABpAG4AZQBzACAAKQAgAHsADQAKACAAIAAgACAAJAB0AG0AcAAgAD0AIAAkAEwAaQBuAGUADQAKACAAIAAgACAAJAB0AHgAdAAgAD0AIAAkACgAJAB0AG0AcAAuAFMAcABsAGkAdAAoACAAJwA6ACcAIAApACkAWwAxAF0ADQAKACAAIAAgACAAcwB3AGkAdABjAGgAIAAoACQATwBwAGUAcgBhAHQAaQBvAG4AKQAgAHsADQAKACAAIAAgACAAIAAgACAAIAAnAHQAaABlAE4AYQBtAGUAJwAgAHsAIAAkAE4AYQBtAGUAIAA9ACAAJAB0AHgAdAANAAoAIAAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAJABPAHAAZQByAGEAdABpAG8AbgAgAD0AIAAnAHQAaABlAEYAaQBsAGUATgBhAG0AZQAnAA0ACgAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAIABiAHIAZQBhAGsADQAKACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAfQANAAoAIAAgACAAIAAgACAAIAAgACcAdABoAGUARgBpAGwAZQBOAGEAbQBlACcAIAB7ACAAJABGAGkAbABlAE4AYQBtAGUAIAA9ACAAJAB0AHgAdAAuAFQAcgBpAG0AKAApAA0ACgAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACQATwBwAGUAcgBhAHQAaQBvAG4AIAA9ACAAJwB0AGgAZQBFAG4AdAByACcADQAKACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAYgByAGUAYQBrAA0ACgAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAfQANAAoAIAAgACAAIAAgACAAIAAgACcAdABoAGUARQBuAHQAcgAnACAAewAgACQARQBuAHQAcgAgAD0AIAAkAHQAeAB0AC4AVAByAGkAbQAoACkADQAKACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACQATwBwAGUAcgBhAHQAaQBvAG4AIAA9ACAAJwB0AGgAZQBDAGwAYQBzAHMATgBhAG0AZQAnAA0ACgAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAIABiAHIAZQBhAGsADQAKACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAfQANAAoAIAAgACAAIAAgACAAIAAgACcAdABoAGUAQwBsAGEAcwBzAE4AYQBtAGUAJwAgAHsAIAAkAEMAbABhAHMAcwBOAGEAbQBlACAAPQAgACQAdAB4AHQALgBUAHIAaQBtACgAKQANAAoAIAAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACQATwBwAGUAcgBhAHQAaQBvAG4AIAA9ACAAJwB0AGgAZQBWAGUAbgBkAG8AcgAnAA0ACgAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAYgByAGUAYQBrAA0ACgAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAIAB9AA0ACgAgACAAIAAgACAAIAAgACAAJwB0AGgAZQBWAGUAbgBkAG8AcgAnACAAewAgACQAVgBlAG4AZABvAHIAIAA9ACAAJAB0AHgAdAAuAFQAcgBpAG0AKAApAA0ACgAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAJABPAHAAZQByAGEAdABpAG8AbgAgAD0AIAAnAHQAaABlAEQAYQB0AGUAJwANAAoAIAAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgAGIAcgBlAGEAawANAAoAIAAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAfQANAAoAIAAgACAAIAAgACAAIAAgACcAdABoAGUARABhAHQAZQAnACAAewAgACAAJAB0AG0AcAAgAD0AIAAkAHQAeAB0AC4AcwBwAGwAaQB0ACgAIAAnAC4AJwAgACkADQAKACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACQAdAB4AHQAIAA9ACAAIgAkACgAJAB0AG0AcABbADIAXQApAC4AJAAoACQAdABtAHAAWwAxAF0AKQAuACQAKAAkAHQAbQBwAFsAMABdAC4AVAByAGkAbQAoACkAKQAiAA0ACgAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAIAAkAEQAYQB0AGUAIAA9ACAAJAB0AHgAdAANAAoAIAAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAJABPAHAAZQByAGEAdABpAG8AbgAgAD0AIAAnAHQAaABlAFYAZQByAHMAaQBvAG4AJwANAAoAIAAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAYgByAGUAYQBrAA0ACgAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgAH0ADQAKACAAIAAgACAAIAAgACAAIAAnAHQAaABlAFYAZQByAHMAaQBvAG4AJwAgAHsAIAAkAFYAZQByAHMAaQBvAG4AIAA9ACAAJAB0AHgAdAAuAFQAcgBpAG0AKAApAA0ACgAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAIAAkAE8AcABlAHIAYQB0AGkAbwBuACAAPQAgACcAdABoAGUATgB1AGwAbAAnAA0ACgAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAIAAkAHAAYQByAGEAbQBzACAAPQAgAFsAbwByAGQAZQByAGUAZABdAEAAewAgACcARgBpAGwAZQBOAGEAbQBlACcAIAA9ACAAJABGAGkAbABlAE4AYQBtAGUADQAKACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAJwBWAGUAbgBkAG8AcgAnACAAPQAgACQAVgBlAG4AZABvAHIADQAKACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAJwBEAGEAdABlACcAIAA9ACAAJABEAGEAdABlAA0ACgAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACcATgBhAG0AZQAnACAAPQAgACQATgBhAG0AZQANAAoAIAAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAIAAnAEMAbABhAHMAcwBOAGEAbQBlACcAIAA9ACAAJABDAGwAYQBzAHMATgBhAG0AZQANAAoAIAAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAIAAnAFYAZQByAHMAaQBvAG4AJwAgAD0AIAAkAFYAZQByAHMAaQBvAG4ADQAKACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAJwBFAG4AdAByACcAIAA9ACAAJABFAG4AdAByAA0ACgAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAfQANAAoAIAAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAJABvAGIAagAgAD0AIABOAGUAdwAtAE8AYgBqAGUAYwB0ACAALQBUAHkAcABlAE4AYQBtAGUAIABQAFMATwBiAGoAZQBjAHQAIAAtAFAAcgBvAHAAZQByAHQAeQAgACQAcABhAHIAYQBtAHMADQAKACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACQARAByAGkAdgBlAHIAcwAgACsAPQAgACQAbwBiAGoADQAKACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgAGIAcgBlAGEAawANAAoAIAAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAIAB9AA0ACgAgACAAIAAgACAAIAAgACAAIAAnAHQAaABlAE4AdQBsAGwAJwAgAHsAIAAkAE8AcABlAHIAYQB0AGkAbwBuACAAPQAgACcAdABoAGUATgBhAG0AZQAnAA0ACgAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgAGIAcgBlAGEAawANAAoAIAAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAIAAgACAAfQANAAoAIAAgACAAIAB9AA0ACgB9AA0ACgAkAGwAYQBzAHQAIAA9ACAAJwAnAA0ACgAkAE4AbwB0AFUAbgBpAHEAdQBlACAAPQAgAEAAKAApAA0ACgBmAG8AcgBlAGEAYwBoACAAKAAgACQARAByACAAaQBuACAAJAAoACQARAByAGkAdgBlAHIAcwAgAHwAIABzAG8AcgB0ACAARgBpAGwAZQBuAGEAbQBlACkAIAApACAAewANAAoAIAAgACAAIABpAGYAIAAoACQARAByAC4ARgBpAGwAZQBOAGEAbQBlACAALQBlAHEAIAAkAGwAYQBzAHQAIAAgACkAIAB7ACAAIAAkAE4AbwB0AFUAbgBpAHEAdQBlACAAKwA9ACAAJABEAHIAIAAgAH0ADQAKACAAIAAgACAAJABsAGEAcwB0ACAAPQAgACQARAByAC4ARgBpAGwAZQBOAGEAbQBlAA0ACgB9AA0ACgAkAE4AbwB0AFUAbgBpAHEAdQBlACAAfAAgAHMAbwByAHQAIABGAGkAbABlAE4AYQBtAGUAIAB8ACAAZgB0AA0ACgAjAFMAZQBhAHIAYwBoAGkAbgBnACAAZgBvAHIAIABkAHUAcABsAGkAYwBhAHQAZQAgAGQAcgBpAHYAZQByAHMAIAANAAoAJABsAGkAcwB0ACAAPQAgACQATgBvAHQAVQBuAGkAcQB1AGUAIAB8ACAAcwBlAGwAZQBjAHQAIAAtAEUAeABwAGEAbgBkAFAAcgBvAHAAZQByAHQAeQAgAEYAaQBsAGUATgBhAG0AZQAgAC0AVQBuAGkAcQB1AGUADQAKACQAVABvAEQAZQBsACAAPQAgAEAAKAApAA0ACgBmAG8AcgBlAGEAYwBoACAAKAAgACQARAByACAAaQBuACAAJABsAGkAcwB0ACAAKQAgAHsADQAKACAAIAAgACAAVwByAGkAdABlAC0ASABvAHMAdAAgACIARAB1AHAAbABpAGMAYQB0AGUAIABkAHIAaQB2AGUAcgAgAGYAbwB1AG4AZAAiACAALQBGAG8AcgBlAGcAcgBvAHUAbgBkAEMAbwBsAG8AcgAgAFkAZQBsAGwAbwB3AA0ACgAgACAAIAAgACQAcwBlAGwAIAA9ACAAJABEAHIAaQB2AGUAcgBzACAAfAAgAHcAaABlAHIAZQAgAHsAIAAkAF8ALgBGAGkAbABlAE4AYQBtAGUAIAAtAGUAcQAgACQARAByACAAfQAgAHwAIABzAG8AcgB0ACAAZABhAHQAZQAgAC0ARABlAHMAYwBlAG4AZABpAG4AZwAgAHwAIABzAGUAbABlAGMAdAAgAC0AUwBrAGkAcAAgADEADQAKACAAIAAgACAAJABzAGUAbAAgAHwAIABmAHQADQAKACAAIAAgACAAJABUAG8ARABlAGwAIAArAD0AIAAkAHMAZQBsAA0ACgB9AA0ACgAjAFcAcgBpAHQAZQAtAEgAbwBzAHQAIAAiAEwAaQBzAHQAIABvAGYAIABkAHIAaQB2AGUAcgAgAHYAZQByAHMAaQBvAG4AIAAgAHQAbwAgAHIAZQBtAG8AdgBlACIAIAAtAEYAbwByAGUAZwByAG8AdQBuAGQAQwBvAGwAbwByACAAUgBlAGQADQAKACQAVABvAEQAZQBsACAAfAAgAGYAdAANAAoAIwBEAGUAbABlAHQAaQBuAGcAIABvAGwAZAAgAGQAcgBpAHYAZQByAHMADQAKAGYAbwByAGUAYQBjAGgAIAAoACAAJABpAHQAZQBtACAAaQBuACAAJABUAG8ARABlAGwAIAApACAAewANAAoAIAAgACAAIAAkAE4AYQBtAGUAIAA9ACAAJAAoACQAaQB0AGUAbQAuAE4AYQBtAGUAKQAuAFQAcgBpAG0AKAApAA0ACgAgACAAIAAgAFcAcgBpAHQAZQAtAEgAbwBzAHQAIAAiAGQAZQBsAGUAdABpAG4AZwAgACQATgBhAG0AZQAiACAALQBGAG8AcgBlAGcAcgBvAHUAbgBkAEMAbwBsAG8AcgAgAFkAZQBsAGwAbwB3AA0ACgAgACAAIAAgAFcAcgBpAHQAZQAtAEgAbwBzAHQAIAAiAHAAbgBwAHUAdABpAGwALgBlAHgAZQAgAC8AZABlAGwAZQB0AGUALQBkAHIAaQB2AGUAcgAgACAAJABOAGEAbQBlACIAIAAtAEYAbwByAGUAZwByAG8AdQBuAGQAQwBvAGwAbwByACAAWQBlAGwAbABvAHcADQAKACAAIAAgACAASQBuAHYAbwBrAGUALQBFAHgAcAByAGUAcwBzAGkAbwBuACAALQBDAG8AbQBtAGEAbgBkACAAIgBwAG4AcAB1AHQAaQBsAC4AZQB4AGUAIAAvAGQAZQBsAGUAdABlAC0AZAByAGkAdgBlAHIAIAAkAE4AYQBtAGUAIgANAAoAfQA= >nul 2>&1
 chcp 65001 >nul
+exit /b
+
+
+
+:RemoveShellBags
 Rem Удаление ShellBags
 for %%k in (Bags BagMRU BagsMRU) do (
     reg delete "HKCU\Software\Microsoft\Windows\Shell\%%k" /f >nul 2>&1
     reg delete "HKCU\Software\Microsoft\Windows\ShellNoRoam\%%k" /f >nul 2>&1
     reg delete "HKCU\Software\Classes\Local Settings\Software\Microsoft\Windows\Shell\%%k" /f >nul 2>&1
 )
+exit /b
 
-	start /b "" Helper /Overlay "Удаление всех предустановленных приложений `n`n[2/13]" /Font "Impact" /Size "40"
+:RemoveAppx
+REM Удаление всех предустановленных UWP-приложений
 	PowerShell -NoProfile -ExecutionPolicy Bypass -Command "Get-AppxPackage | Where-Object { $_.NonRemovable -eq $false } | ForEach-Object { Remove-AppxPackage -Package $_.PackageFullName -AllUsers -ErrorAction SilentlyContinue }" >nul 2>&1
-	reg add "HKLM\Software\Policies\Microsoft\Dsh" /v "AllowNewsAndInterests" /t REG_DWORD /d "0" /f >nul 2>&1
+	exit /b
+
+:RemoveOneDrive
 Rem Удаление OneDrive
 	taskkill /f /im OneDrive.exe >nul 2>&1
 	%SystemRoot%\System32\OneDriveSetup.exe /uninstall >nul 2>&1
@@ -79,23 +178,39 @@ Rem Удаление OneDrive
 	if exist "%SystemRoot%\WinSxS\amd64_microsoft-windows-onedrive-setup*" for /d %%i in ("%SystemRoot%\WinSxS\amd64_microsoft-windows-onedrive-setup*") do %TI% rd /s /q "%%i"
 	reg delete "HKCU\Software\Microsoft\OneDrive" /f >nul 2>&1
 	reg delete "HKLM\Software\Microsoft\OneDrive" /f >nul 2>&1
+	exit /b
+	
+:CleanStartMenu
 Rem Удаление лишних папок с приложениями в Пуске
 	rd "%AppData%\Microsoft\Windows\Start Menu\Programs\Accessibility" /Q /S >nul 2>&1
 	rd "%ProgramData%\Microsoft\Windows\Start Menu\Programs\Accessories\System Tools" /Q /S >nul 2>&1
+	exit /b
+
+:RemoveRemoteAssistant
 Rem Удаление Помощника по удаленному подключению
 	PowerShell "Start-Process mstsc.exe -ArgumentList '/uninstall' -WindowStyle Hidden -ErrorAction SilentlyContinue"
 	timeout /t 5 /nobreak >nul 2>&1
 	taskkill /f /im mstsc.exe >nul 2>&1
-
-	start /b "" Helper /Overlay "Удаление браузера Edge и WebView2 `n`n [3/13]" /Font "Impact" /Size "40"
+	exit /b
+	
+:RemoveEdge
 	%TI% taskkill /f /im MicrosoftEdge.exe >nul 2>&1
 	%TI% taskkill /f /im MicrosoftEdgeUpdate.exe >nul 2>&1
+	%TI% taskkill /f /im MicrosoftEdgeWebView.exe >nul 2>&1
 	start /wait "" "%~dp0\Work\setup.exe" --uninstall --system-level --force-uninstall --msedge >nul 2>&1
+	%TI% rd /s /q "%ProgramFiles(x86)%\Microsoft\Edge" & %TI% rd /s /q "%ProgramFiles(x86)%\Microsoft\EdgeCore" & %TI% rd /s /q "%ProgramFiles(x86)%\Microsoft\Temp"
+	exit /b
+	
+:RemoveEdgeWebView
+	%TI% taskkill /f /im MicrosoftEdge.exe >nul 2>&1
+	%TI% taskkill /f /im MicrosoftEdgeUpdate.exe >nul 2>&1
+	%TI% taskkill /f /im MicrosoftEdgeWebView.exe >nul 2>&1
 	start /wait "" "%~dp0\Work\setup.exe" --uninstall --system-level --force-uninstall --msedgewebview >nul 2>&1
+	%TI% rd /s /q "%ProgramFiles(x86)%\Microsoft\EdgeWebView" "%ProgramFiles(x86)%\Microsoft\EdgeCore"
+	exit /b
 	
-	
-	start /b "" Helper /Overlay "Удаление Защитника Windows `n`n [4/13]" /Font "Impact" /Size "40"
-	timeout /t 4 /nobreak >nul 2>&1
+:RemoveDefender
+	timeout /t 3 /nobreak >nul 2>&1
 Rem Если есть DK
 	if exist "%USERPROFILE%\Desktop\DK\DefenderKiller.bat" set "DK=1" & set "DK=%USERPROFILE%\Desktop\DK\DefenderKiller.bat"
 	if exist "%USERPROFILE%\Desktop\DefenderKiller.bat" set "DK=1" & set "DK=%USERPROFILE%\Desktop\DefenderKiller.bat"
@@ -113,11 +228,13 @@ Rem Если есть DK
 	) 
 
 	if not defined DK (
-		start /b "" Helper /Overlay "DefenderKiller не обнаружен `n`nПропускаю..." /Font "Impact" /Size "40"
-		timeout /t 4 >nul
+		start /b "" Helper /Overlay "DefenderKiller не обнаружен `n`nПропускаю..." /Font "Bahnschrift" /Size "40"
+		timeout /t 3 >nul
 	)
-
-	start /b "" Helper /Overlay "Удаление дополнительных компонентов `n`n [5/13]" /Font "Impact" /Size "40"
+	exit /b
+	
+:RemoveComponents
+REM Удаление дополнительных компонентов
 	for %%C in (
 		Microsoft.Windows.Notepad.System
 		Microsoft.Windows.PowerShell.ISE
@@ -137,9 +254,10 @@ Rem Если есть DK
 			dism /Online /Remove-Capability /CapabilityName:!cap! /NoRestart
 		)
 	) >nul 2>&1
-
-	start /b "" Helper /Overlay "Отключение лишнего в Планировщике задач... `n`n [6/13]" /Font "Impact" /Size "40"
-	timeout /t 3 /nobreak >nul 2>&1
+	exit /b
+	
+:DisableTasks
+REM Отключение лишнего в Планировщике задач
 	chcp 866 >nul
 for %%T in (
     "\Microsoft\Windows\Active Directory Rights Management Services Client\AD RMS Rights Policy Template Management (Automated)" "\Microsoft\Windows\AppID\EDP Policy Manager" "\Microsoft\Windows\AppID\PolicyConverter"
@@ -181,32 +299,57 @@ for %%T in (
     "\Microsoft\Windows\Workplace Join\Automatic-Device-Join" "\Microsoft\Windows\Workplace Join\Device-Sync" "\Microsoft\Windows\Workplace Join\Recovery-Check" "\Microsoft\Windows\UNP\RunCampaignManager" "\MicrosoftEdgeUpdateTaskMachineCore"
     "\MicrosoftEdgeUpdateTaskMachineUA" "\Microsoft\Windows\Windows Defender\Windows Defender Cache Maintenance" "\Microsoft\Windows\Windows Defender Cleanup" "\Microsoft\Windows\Windows Defender Scheduled Scan" "\Microsoft\Windows\Windows Defender Verification"
 ) do (
-    schtasks /Change /TN %%T /Disable >nul 2>&1
+    %TI% schtasks /Change /TN %%T /Disable >nul 2>&1
 )
 	chcp 65001 >nul
+	exit /b
 
-	start /b "" Helper /Overlay "Оптимизация параметров `n`n [7/13]" /Font "Impact" /Size "40"
+:DisableHibernate
 Rem Отключение гибернации
     powercfg -h off >nul 2>&1
 	reg add "HKLM\System\CurrentControlSet\Control\Power" /v "HibernateEnabledDefault" /t REG_DWORD /d 0x0 /f >nul 2>&1
+	exit /b
+	
+:DisableReservedStorage
 Rem Отключение зарезервированного хранилища
 	Dism /Online /Set-ReservedStorageState /State:Disabled >nul 2>&1
+	exit /b
+
+:DisableRestorePoints
 Rem Отключение точек восстановления
 	vssadmin resize shadowstorage /on=c: /for=c: /maxsize=1%% >nul 2>&1
 	PowerShell -Command "Disable-ComputerRestore -Drive '%SystemDrive%\'" >nul 2>&1
 	vssadmin delete shadows /all /quiet >nul 2>&1
 	reg delete "HKLM\Software\Microsoft\Windows NT\CurrentVersion\SystemRestore" /v "RPSessionInterval" /f >nul 2>&1
+	exit /b
+	
+:DelayedServices
 Rem Отложенный запуск автоматических служб
 	for %%p in (EventSystem NlaSvc) do reg add "HKLM\System\CurrentControlSet\Services\%%p" /v "DelayedAutostart" /t reg_dword /d 1 /f >nul 2>&1
+	exit /b
+	
+:SystemLog
 Rem Минимизация системных отчетов
 	"%~dp0\Work\Eventlog" >nul 2>&1
+	exit /b
+	
+:BoostIconCache
 Rem Увеличить кэш иконок
 	reg add "HKLM\Software\Microsoft\Windows\CurrentVersion\Explorer" /v "MaxCachedIcons" /t REG_SZ /d 4096 /f >nul
+	exit /b
+	
+:SvcSplit
 Rem Увеличение порога разделения SVC
     PowerShell "$key = 'HKLM:\SYSTEM\CurrentControlSet\Control'; if (-not (Get-ItemProperty -Path $key -Name 'SvcHostSplitThresholdInKB' -ErrorAction SilentlyContinue)) { Write-Output ' Параметра SvcHostSplitThresholdInKB нет, отмена действий'; Pause; Exit } elseif (-not (Get-ItemProperty -Path $key -Name 'SvcHostSplitThresholdInKB_orig' -ErrorAction SilentlyContinue)) { Rename-ItemProperty -Path $key -Name 'SvcHostSplitThresholdInKB' -NewName 'SvcHostSplitThresholdInKB_orig'; $mem = (Get-CimInstance Win32_OperatingSystem).TotalVisibleMemorySize + 1024000; Set-ItemProperty -Path $key -Name 'SvcHostSplitThresholdInKB' -Value $mem -Type DWord }
+	exit /b
+	
+:FastFolders
 Rem Ускорить открытие папок
 	reg add "HKCU\Software\Classes\Local Settings\Software\Microsoft\Windows\Shell\Bags\AllFolders\Shell" /v "FolderType" /t REG_SZ /d NotSpecified /f >nul 2>&1
 	for %%k in (Directory.Audio Directory.Image Directory.Video) do (for %%c in (Enqueue Play) do (reg add "HKCR\SystemFileAssociations\%%k\shell\%%c" /v "LegacyDisable" /t REG_SZ /d "" /f >nul)) >nul 2>&1
+	exit /b
+	
+:DisableVBS
 Rem Отключить VBS
     bcdedit /set hypervisorlaunchtype off >nul
     for %%p in (
@@ -239,28 +382,43 @@ Rem Отключить VBS
         AuditModeEnabled
         WasEnabledBy
     ) do reg add "HKLM\System\CurrentControlSet\Control\DeviceGuard\Scenarios\KernelShadowStacks" /v "%%p" /t reg_dword /d 0 /f >nul 2>&1
+	exit /b
+	
+:DisableGameDVR
 Rem Отключить GameDVR 
     reg add "HKCR\System\GameConfigStore" /v "GameDVR_Enabled" /t REG_DWORD /d 0 /f >nul 
     reg add "HKCR\Software\Microsoft\Windows\CurrentVersion\GameDVR" /v "AppCaptureEnabled" /t REG_DWORD /d 0 /f >nul
 	reg add "HKLM\Software\Policies\Microsoft\Windows\GameDVR" /v "AllowGameDVR" /t REG_DWORD /d 0 /f >nul
 	reg add "HKLM\Software\Microsoft\PolicyManager\default\ApplicationManagement\AllowGameDVR" /v "Value" /t REG_DWORD /d 0 /f >nul
     reg add "HKLM\Software\Microsoft\Windows\CurrentVersion\GameDVR" /v "AllowGameDVR" /t REG_DWORD /d 0 /f >nul
+	exit /b
+	
+:UltimatePerformance
 Rem Схема питания Максимальная производительность
 	%TI% reg add "HKLM\System\CurrentControlSet\Control\Power\User\PowerSchemes" /v ActivePowerScheme /t REG_SZ /d e9a42b02-d5df-448d-aa00-03f14749eb61 /f >nul
+	exit /b
+	
+:DisableResume
 Rem Функция Возобновить
 	"%~dp0\Work\vivetool.exe" /disable /id:56517033 >nul
     reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\CrossDeviceResume\Configuration" /v "IsResumeAllowed" /t REG_DWORD /d 0 /f >nul 
     reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\CrossDeviceResume\Configuration" /v "IsOneDriveResumeAllowed" /t REG_DWORD /d 0 /f >nul
+	exit /b
 	
-	start /b "" Helper /Overlay "Настройка Центра обновления Windows `n`n [8/13]" /Font "Impact" /Size "40"
-	timeout /t 5 /nobreak >nul 2>&1
+:DisableWUDrivers
 Rem Запрет на установку драйверов из ЦО
 	reg add "HKLM\Software\Microsoft\Windows\CurrentVersion\Device Metadata" /v "PreventDeviceMetadataFromNetwork" /t REG_DWORD /d "1" /f >nul
 	reg add "HKLM\Software\Policies\Microsoft\Windows\Device Metadata" /v "PreventDeviceMetadataFromNetwork" /t REG_DWORD /d "1" /f >nul
-	reg add "HKLM\Software\Policies\Microsoft\Windows\DriverSearching" /v "SearchOrderConfig" /t REG_DWORD /d "0" /f >nul
+	reg add "HKLM\Software\Policies\Microsoft\Windows\DriverSearching" /v "SearchOrderConfig" /t REG_DWORD /d "2" /f >nul
 	reg add "HKLM\Software\Policies\Microsoft\Windows\WindowsUpdate" /v "ExcludeWUDriversInQualityUpdate" /t REG_DWORD /d "1" /f >nul
-Rem Запрет на обновление баз Защитника
+	exit /b
+	
+:DisableDefenderUpdates
+Rem Отключить обновления средств удаления вредоносных программ
 	reg add "HKLM\Software\Policies\Microsoft\MRT" /v "DontOfferThroughWUAU" /t REG_DWORD /d "1" /f >nul
+	exit /b
+	
+:PauseUpdates
 Rem Пауза обновлений до 07.07.77
 	reg add "HKLM\SOFTWARE\Microsoft\WindowsUpdate\UX\Settings" /v "PauseUpdatesStartTime" /t REG_SZ /d 2024-09-13T00:00:00Z /f >nul
 	reg add "HKLM\SOFTWARE\Microsoft\WindowsUpdate\UX\Settings" /v "PauseUpdatesExpiryTime" /t REG_SZ /d 2077-07-07T00:00:00Z /f >nul
@@ -275,94 +433,135 @@ Rem Пауза обновлений до 07.07.77
 	reg add "HKLM\Software\Microsoft\WindowsUpdate\UpdatePolicy\Settings" /v "PausedQualityStatus" /t REG_DWORD /d 1 /f >nul
 	reg add "HKLM\Software\Microsoft\WindowsUpdate\UpdatePolicy\Settings" /v "PausedQualityDate" /t REG_SZ /d "2077-07-07 13:00:00" /f >nul
 	reg add "HKLM\Software\Microsoft\WindowsUpdate\UpdatePolicy\Settings" /v "PausedFeatureDate" /t REG_SZ /d "2077-07-07 13:00:00" /f >nul
+	exit /b
+	
+:DisableAutoUpdates
 Rem Запрет автоматических обновлений
 	reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate\AU" /v "NoAutoUpdate" /t REG_DWORD /d 1 /f >nul
+	exit /b
 
-	start /b "" Helper /Overlay "Применение полезных твиков `n`n [9/13]" /Font "Impact" /Size "40"
-	timeout /t 3 /nobreak >nul 2>&1
+:DisableUAC
 Rem Отключение UAC
     for %%a in (EnableLUA PromptOnSecureDesktop EnableVirtualization ConsentPromptBehaviorAdmin) do reg add "HKLM\Software\Microsoft\Windows\CurrentVersion\Policies\System" /v "%%a" /t REG_DWORD /d 0 /f >nul
     for %%b in (batfile cmdfile exefile cplfile mscfile) do reg add "HKLM\Software\Classes\%%b\shell\runas" /v "ProgrammaticAccessOnly" /t REG_SZ /d "" /f >nul
     reg add "HKLM\Software\Classes\exefile\shell\runas2" /v "ProgrammaticAccessOnly" /t REG_SZ /d "" /f >nul
+	exit /b
+	
+:EnableAdmin
 Rem Административная учетная запись
 	net user "%UserName%" /active:yes >nul
+	exit /b
+	
+:UnlockRegion
 Rem Снятие региональных ограничений
 	sc start TrustedInstaller >nul
 	%TI% ren "%SystemRoot%\System32\IntegratedServicesRegionPolicySet.json" IntegratedServicesRegionPolicySet.json_bak
 	%TI% copy "%~dp0\Work\IntegratedServicesRegionPolicySet.json" "%SystemRoot%\System32"
-Rem Принудительное завершение программ при зависании
+	exit /b
+	
+:KillFreezeApps
+Rem Принудительное завершение программ при выключении
 	reg add "HKCR\Control Panel\Desktop" /v "AutoEndTasks" /t REG_SZ /d 1 /f >nul
+	exit /b
+	
+:DisableRemote
 Rem Отключение Удаленного помощника
 	reg add "HKLM\System\ControlSet001\Control\Remote Assistance" /v "fAllowToGetHelp" /t REG_DWORD /d 0 /f >nul
 	reg add "HKLM\System\ControlSet001\Control\Remote Assistance" /v "fAllowFullControl" /t REG_DWORD /d 0 /f >nul
 	reg add "HKLM\System\ControlSet001\Control\Terminal Server" /v "fDenyTSConnections" /t REG_DWORD /d 1 /f >nul
 	reg add "HKLM\System\ControlSet001\Control\Terminal Server\WinStations\RDP-Tcp" /v "UserAuthentication" /t REG_DWORD /d 0 /f >nul
+	exit /b
+	
+:DisableStickyKeys
 Rem Отключение залипания клавиш
 	reg add "HKCU\Control Panel\Accessibility\StickyKeys" /v "Flags" /t REG_SZ /d 506 /f >nul
+	exit /b
+	
+:TTL
 Rem Скрытие реального TTL
 	reg add "HKLM\SYSTEM\ControlSet001\Services\Tcpip\Parameters" /v DefaultTTL /t REG_DWORD /d 0x41 /f >nul
 	reg add "HKLM\SYSTEM\ControlSet001\Services\Tcpip6\Parameters" /v DefaultTTL /t REG_DWORD /d 0x41 /f >nul
-Rem Отключение уведомлений и рекомендаций в Система > Уведомления
+	exit /b
+	
+:DisableNotificationsAds
+Rem Отключение уведомлений и рекомендаций
 	reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" /v "SubscribedContent-338389Enabled" /t REG_DWORD /d 0 /f >nul
 	reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" /v "SubscribedContent-310093Enabled" /t REG_DWORD /d 0 /f >nul
 	reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\UserProfileEngagement" /v "ScoobeSystemSettingEnabled" /t REG_DWORD /d 0 /f >nul
-Rem Отключение уведомлений и рекомендаций в Персонализация > Пуск
 	reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Start" /v "ShowRecentList" /t REG_DWORD /d 0 /f >nul
 	reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Start" /v "ShowFrequentList" /t REG_DWORD /d 0 /f >nul
 	reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v "Start_TrackDocs" /t REG_DWORD /d 0 /f >nul
 	reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v "Start_IrisRecommendations" /t REG_DWORD /d 0 /f >nul
 	reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v "Start_AccountNotifications" /t REG_DWORD /d 0 /f >nul
 	reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v "Start_Layout" /t REG_DWORD /d 1 /f >nul
-Rem Отключение рекомендаций в Проводнике
 	reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer" /v "ShowRecent" /t REG_DWORD /d 0 /f >nul
 	reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer" /v "ShowFrequent" /t REG_DWORD /d 0 /f >nul
 	reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer" /v "ShowCloudFilesInQuickAccess" /t REG_DWORD /d 0 /f >nul
 	reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer" /v "ShowRecommendations" /t REG_DWORD /d 0 /f >nul
-Rem Отключение других рекомендаций и предложений
 	reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" /v "ContentDeliveryAllowed" /t REG_DWORD /d 0 /f >nul
 	reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" /v "SystemPaneSuggestionsEnabled" /t REG_DWORD /d 0 /f >nul
+	exit /b
+
+:DNS
 Rem Установка DNS на Wi-Fi адаптеры
 set adapters=Ethernet "Беспроводная сеть" "Бездротова мережа" "Wireless network"
 for %%a in (!adapters!) do (
 	netsh interface ipv4 set dns name=%%a static 1.1.1.1 >nul
 	netsh interface ip add dns name=%%a address=1.0.0.1 index=2 >nul
 )
-
-	start /b "" Helper /Overlay "Установка драйверов `n`n [10/13]" /Font "Impact" /Size "40"
-	timeout /t 3 /nobreak >nul 2>&1
+exit /b
+	
+:InstallDrivers
 Rem Если есть папка Drivers на Рабочем столе
 if exist "%USERPROFILE%\Desktop\Drivers" (
     pnputil /add-driver "%USERPROFILE%\Desktop\Drivers\*.inf" /subdirs /install >nul 2>&1
     timeout /t 3 /nobreak >nul 2>&1
 ) else (
 Rem Если нет папки Driver на Рабочем столе
-	start /b "" Helper /Overlay "Папка с драйверами не обнаружена  `n`n Пропускаю..." /Font "Impact" /Size "40"
+	start /b "" Helper /Overlay "Папка с драйверами не обнаружена  `n`n Пропускаю..." /Font "Bahnschrift" /Size "40"
 	timeout /t 3 /nobreak >nul 2>&1
 )
-
-
-	start /b "" Helper /Overlay "Установка Visual C++ и DirectX `n`n [11/13]" /Font "Impact" /Size "40"
+exit /b
+	
+:InstallVC
 	start "" /wait "%~dp0\Work\VisualCppRedist_AIO_x86_x64.exe" /aiA /gm2
+	exit /b
+	
+:InstallDX
 	start "" /wait "%~dp0\Work\DirectX.exe"
+	exit /b
 	
-	
-	start /b "" Helper /Overlay "Установка визуальных твиков `n`n [12/13]" /Font "Impact" /Size "40"
-    timeout /t 5 /nobreak >nul 2>&1
+:RemoveHome
 Rem Удаление Главная из Проводника 
     reg add "HKLM\Software\Microsoft\Windows\CurrentVersion\Explorer" /v "HubMode" /t REG_DWORD /d 1 /f >nul
     reg add "HKCU\Software\Classes\CLSID\{f874310e-b6b7-47dc-bc84-b9e6b38f5903}" /v "System.IsPinnedToNameSpaceTree" /t REG_DWORD /d 0 /f >nul
     reg add "HKCU\Software\Classes\Wow6432Node\CLSID\{f874310e-b6b7-47dc-bc84-b9e6b38f5903}" /v "System.IsPinnedToNameSpaceTree" /t REG_DWORD /d 0 /f >nul
+	exit /b
+	
+:RemoveGallery
 Rem Удаление Галерея из Проводника 
     reg add "HKCU\Software\Classes\CLSID\{e88865ea-0e1c-4e20-9aa6-edcd0212c87c}" /v "System.IsPinnedToNameSpaceTree" /t REG_DWORD /d 0 /f >nul 2>&1
     reg add "HKCU\Software\Classes\Wow6432Node\CLSID\{e88865ea-0e1c-4e20-9aa6-edcd0212c87c}" /v System.IsPinnedToNameSpaceTree /t REG_DWORD /d 0 /f >nul 2>&1
+	exit /b
+	
+:RemoveNetwork
 Rem Удаление Сеть из Проводника 
 	reg add "HKCU\Software\Classes\CLSID\{F02C1A0D-BE21-4350-88B0-7367FC96EF3C}" /v "System.IsPinnedToNameSpaceTree" /t REG_DWORD /d 0 /f >nul 2>&1
+	exit /b
+	
+:DarkTheme
 Rem Темная тема
 	reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Themes\Personalize" /v AppsUseLightTheme /t REG_DWORD /d 0 /f >nul 2>&1
 	reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Themes\Personalize" /v SystemUsesLightTheme /t REG_DWORD /d 0 /f >nul 2>&1
+	exit /b
+	
+:SetWallpaper
 Rem Установка обоев
 	copy "%~dp0\Work\1.jpg" "%SystemRoot%\Web\Wallpaper\Windows" >nul 2>&1
 	reg add "HKCU\Control Panel\Desktop" /v Wallpaper /t REG_SZ /d "%SystemRoot%\Web\Wallpaper\Windows\1.jpg" /f >nul 2>&1
+	exit /b
+	
+:BlueIcons
 Rem Установка синих папок
 	%TI% ren "%SystemRoot%\SystemResources\imageres.dll.mun" imageres.dll.mun_bak
 	%TI% copy "%~dp0\Work\BlueIcon\imageres.dll.mun" "%SystemRoot%\SystemResources"
@@ -395,7 +594,9 @@ Rem Установка синих папок
 	for %%p in (windows.ico desktop.ini) do attrib +h %%p >nul 2>&1
 	popd
 	for %%f in ("%ProgramFiles(x86)%" "%ProgramFiles%" "%SystemDrive%\Users" "%SystemRoot%") do ATTRIB +R "%%~f" >nul 2>&1
+	exit /b
 
+:Icaros
 Rem Установка дополнительных эскизов через Icaros
 	if not exist "%ProgramFiles%\WinClean\Preview" mkdir "%ProgramFiles%\WinClean\Preview" >nul 2>&1
     for %%F in (avcodec-ics-61.dll avformat-ics-61.dll avutil-ics-59.dll IcarosCache.dll IcarosPropertyHandler.dll IcarosThumbnailProvider.dll libunarr-ics.dll swscale-ics-8.dll) do (
@@ -417,38 +618,70 @@ Rem Установка дополнительных эскизов через Ic
         reg add "HKLM\Software\Classes\%%E\ShellEx\{e357fccd-a995-4576-b01f-234630154e96}" /ve /t REG_SZ /d "{c5aec3ec-e812-4677-a9a7-4fee1f9aa000}" /f >nul 
         reg add "HKLM\Software\Classes\%%E\ShellEx\{BB2E617C-0920-11d1-9A0B-00C04FC2D6C1}" /ve /t REG_SZ /d "{c5aec3ec-e812-4677-a9a7-4fee1f9aa000}" /f >nul 
     )
-
+	exit /b
+	
+:TraySeconds
 Rem Установка секунд в трее
     reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v ShowSecondsInSystemClock /t REG_DWORD /d 1 /f >nul
+	exit /b
+	
+:TrayDate
 Rem Установка даты в трее
     reg add "HKCU\Control Panel\International" /v sShortDate /t REG_SZ /d "ddd, dd.MM.yy" /f >nul 2>&1
+	exit /b
+	
+:TaskbarEndTask
 Rem Установка Завершить задачу
     reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced\TaskbarDeveloperSettings" /v "TaskbarEndTask" /t REG_DWORD /d 1 /f >nul
+	exit /b
+	
+:RemoveTaskbarIcons
 Rem Удаление лишних значков
 	reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Search" /v SearchboxTaskbarMode /t REG_DWORD /d 0 /f >nul
 	reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v ShowTaskViewButton /t REG_DWORD /d 0 /f >nul 
 	reg add "HKLM\SOFTWARE\Policies\Microsoft\Dsh" /v AllowNewsAndInterests /t REG_DWORD /d 0 /f >nul 
+	exit /b
+	
+:HideRecommended
 Rem Скрытие Рекомендуем
 	reg add "HKLM\SOFTWARE\Microsoft\PolicyManager\current\device\Start" /v "HideRecommendedSection" /t REG_DWORD /d 1 /f >nul
 	reg add "HKLM\SOFTWARE\Microsoft\PolicyManager\current\device\Education" /v "IsEducationEnvironment" /t REG_DWORD /d 1 /f >nul
 	reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows\Explorer" /v "HideRecommendedSection" /t REG_DWORD /d 1 /f >nul
+	exit /b
+	
+:StartSettingsIcon
 Rem Установка значка Настройки в Пуске
 	reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Start" /v "VisiblePlaces" /t REG_BINARY /d 86087352AA5143429F7B2776584659D4 /f >nul
+	exit /b
+	
+:WallpaperQuality
 Rem Удаления сжатия обоев
 	reg add "HKCU\Control Panel\Desktop" /v "JPEGImportQuality" /t REG_DWORD /d 0x64 /f >nul
+	exit /b
+	
+:RemoveLockScreen
 Rem Удаление экрана блокировки
 	reg add "HKLM\Software\Policies\Microsoft\Windows\Personalization" /v NoLockScreen /t REG_DWORD /d 1 /f >nul
 	reg add "HKLM\Software\Policies\Microsoft\Windows\Personalization" /v NoLockScreenCamera /t REG_DWORD /d 1 /f >nul
+	exit /b
+	
+:NoIconShadow
 Rem Удаление тени на значках Рабочего стола
 	reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v "ListviewShadow" /t REG_DWORD /d 0 /f >nul
+	exit /b
+	
+:ExplorerThisPC
 Rem Открывать Проводник в Этот компьютер
 	reg add  "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v LaunchTo /t REG_DWORD /d 0 /f >nul
+	exit /b
+	
+:ShowExtensions
 Rem Показывать расширения файлов
 	reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v HideFileExt /t REG_DWORD /d 0 /f >nul
+	exit /b
 
-
-	start /b "" Helper /Overlay "Сжатие системы `n`n [13/13]" /Font "Impact" /Size "40"
-Rem Очистка Центра уведомлений
+:CompressOS
+REM Сжатие системы 
 	set "NameSvcMask="
 	for /f "delims=" %%A in (' 2^>nul reg query HKLM\System\CurrentControlSet\Services /k /f WpnUserService_ ^| find "HKEY_"') do set "NameSvcMask=%%~nxA"
 	if defined NameSvcMask (
@@ -457,18 +690,101 @@ Rem Очистка Центра уведомлений
 	 timeout /t 1 /nobreak >nul 2>&1
 	  net start %NameSvcMask%
 	) >nul 2>&1
-Rem Сжатие файлов
+	compact /c /s:%SystemRoot%\ /exe:LZX /i /a /f >nul 2>&1
+	exit /b
+	
+:CompressDrive
+REM Сжатие системы 
+	set "NameSvcMask="
+	for /f "delims=" %%A in (' 2^>nul reg query HKLM\System\CurrentControlSet\Services /k /f WpnUserService_ ^| find "HKEY_"') do set "NameSvcMask=%%~nxA"
+	if defined NameSvcMask (
+	  net stop %NameSvcMask%
+	  del /q /f "%LocalAppData%\Microsoft\Windows\Notifications\*.db*"
+	 timeout /t 1 /nobreak >nul 2>&1
+	  net start %NameSvcMask%
+	) >nul 2>&1
 	compact /c /s:%SystemDrive%\ /exe:LZX /i /a /f >nul 2>&1
-	reg add "HKCU\Software\WinClick" >nul
-	start /b "" Helper /Overlay "Готово. Перезагружаюсь..." /Font "Impact" /Size "40"
-	timeout /t 4 /nobreak >nul 2>&1
-Rem Перезагрузка
-	shutdown /r /t 2
-	Helper /Overlay
-	Exit
+	exit /b
 
-Rem Проверка версии Windows
 :WinVer
     for /f "skip=2 tokens=3" %%a in ('2^>nul reg query "HKLM\Software\Microsoft\Windows NT\CurrentVersion" /v CurrentBuildNumber') do set /a build=%%a
-    if !build! LSS 22000 start /b "" Helper /Overlay "Утилита предназначена для Windows 11" /Font "Impact" /Size "40" && Helper /HideConsole && timeout /t 4 /nobreak >nul && start /b "" Helper /Overlay && exit /b
-	reg query "HKCU\Software\WinClick" && start /b "" Helper /Overlay "Настройка и оптимизация уже выполнены" /Font "Impact" /Size "40" && Helper /HideConsole && timeout /t 4 /nobreak >nul && start /b "" Helper /Overlay && exit /b
+    if !build! LSS 22000 start /b "" Helper /Overlay "Утилита предназначена для Windows 11" /Font "Bahnschrift" /Size "40" && Helper /HideConsole && timeout /t 4 /nobreak >nul && start /b "" Helper /Overlay && exit
+	exit /b
+
+:RemoveOverlay
+	start /b "" Helper /Overlay "Удаление мусора" /Font "Bahnschrift Bold" /Size "40"
+	timeout /t 1 /nobreak >nul 2>&1
+	exit /b
+	
+:AppOverlay
+	start /b "" Helper /Overlay "Удаление предустановленных приложений" /Font "Bahnschrift" /Size "40"
+	timeout /t 1 /nobreak >nul 2>&1
+	exit /b
+
+:EdgeOverlay
+	start /b "" Helper /Overlay "Удаление браузера Edge" /Font "Bahnschrift" /Size "40"
+	timeout /t 1 /nobreak >nul 2>&1
+	exit /b
+	
+:WebViewOverlay
+	start /b "" Helper /Overlay "Удаление компонента WebView2" /Font "Bahnschrift" /Size "40"
+	timeout /t 1 /nobreak >nul 2>&1
+	exit /b
+	
+:DefenderOverlay
+	start /b "" Helper /Overlay "Удаление Защитника Windows" /Font "Bahnschrift" /Size "40"
+	timeout /t 1 /nobreak >nul 2>&1
+	exit /b
+	
+:ComponentsOverlay
+	start /b "" Helper /Overlay "Удаление дополнительных компонентов" /Font "Bahnschrift" /Size "40"
+	timeout /t 1 /nobreak >nul 2>&1
+	exit /b
+	
+:TasksOverlay
+	start /b "" Helper /Overlay "Отключение лишнего в Планировщике задач" /Font "Bahnschrift" /Size "40"
+	timeout /t 1 /nobreak >nul 2>&1
+	exit /b
+
+:OptimizationOverlay
+	start /b "" Helper /Overlay "Оптимизация параметров" /Font "Bahnschrift" /Size "40"
+	timeout /t 1 /nobreak >nul 2>&1
+	exit /b
+	
+:UpdateOverlay
+	start /b "" Helper /Overlay "Настройка Центра обновления Windows" /Font "Bahnschrift" /Size "40"
+	timeout /t 1 /nobreak >nul 2>&1
+	exit /b
+	
+:TweaksOverlay
+	start /b "" Helper /Overlay "Применение полезных твиков" /Font "Bahnschrift" /Size "40"
+	timeout /t 1 /nobreak >nul 2>&1
+	exit /b
+	
+:DriversOverlay
+	start /b "" Helper /Overlay "Установка драйверов" /Font "Bahnschrift" /Size "40"
+	timeout /t 2 /nobreak >nul 2>&1
+	exit /b
+
+:DirectXOverlay
+	start /b "" Helper /Overlay "Установка DirectX 9-11" /Font "Bahnschrift" /Size "40"
+	timeout /t 1 /nobreak >nul 2>&1
+	exit /b
+
+:VisualCOverlay
+	start /b "" Helper /Overlay "Установка Visual C++" /Font "Bahnschrift" /Size "40"
+	timeout /t 1 /nobreak >nul 2>&1
+	exit /b
+	
+:VisualOverlay
+	start /b "" Helper /Overlay "Установка визуальных твиков" /Font "Bahnschrift" /Size "40"
+	timeout /t 1 /nobreak >nul 2>&1
+    exit /b
+
+:CompressOverlay
+	start /b "" Helper /Overlay "Сжатие системных файлов" /Font "Bahnschrift" /Size "40"
+	exit /b
+	
+:CompressDriveOverlay
+	start /b "" Helper /Overlay "Сжатие системных и программных файлов" /Font "Bahnschrift" /Size "40"
+	exit /b
