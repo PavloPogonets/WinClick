@@ -18,7 +18,7 @@
     </tr>
     <tr>
       <td align="center">
-        <a href="#"><img src="https://img.shields.io/github/downloads/MartyFiles/WinClick/Release/total?style=for-the-badge&label=WinClick%202.0&color=blue&logo=download"></a>
+        <a href="https://github.com/MartyFiles/WinClick/releases/download/Release/WinClick.exe"><img src="https://img.shields.io/github/downloads/MartyFiles/WinClick/Release/total?style=for-the-badge&label=WinClick%202.0&color=blue&logo=download"></a>
       </td>
       <td align="center">
         <a href="https://youtu.be/JMTuY_Gi70U"><img src="https://img.shields.io/badge/WinClick%202.0-red?style=for-the-badge&logo=youtube"></a>
