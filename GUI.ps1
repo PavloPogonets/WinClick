@@ -237,7 +237,7 @@ $tweaks = [ordered]@{
 		@("Отключить VBS и HVCI", "/DisableVBS"),
         @("Отключить GameDVR", "/DisableGameDVR"),
 		@("Установить схему питания Максимальная производительность", "/UltimatePerformance"),
-		@("Отключить функцию Возоновить", "/DisableResume")
+		@("Отключить функцию Возобновить", "/DisableResume")
     )
     "Центр обновления Windows" = @(
         @("Запретить установку драйверов из ЦО", "/DisableWUDrivers"),
