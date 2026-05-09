@@ -217,7 +217,7 @@ $tweaks = [ordered]@{
         @("Удалить Edge WebView2", "/RemoveEdgeWebView")
     )
     "Защитник Windows" = @(
-        ,@("Удалить Защитнике Windows (DefenderKiller)", "/RemoveDefender")
+        ,@("Удалить Защитник Windows (DefenderKiller)", "/RemoveDefender")
     )
 	"Компоненты Windows" = @(
         ,@("Удалить все дополнительные компоненты", "/RemoveComponents")
