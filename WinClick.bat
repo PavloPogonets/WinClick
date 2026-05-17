@@ -786,3 +786,7 @@ REM Сжатие системы
 Rem test 
 	start reg add 
 	exit /b
+
+
+
+test message
