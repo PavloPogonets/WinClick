@@ -552,3 +552,5 @@ if ($ShowReboot) {
     Set-FadeIn $window
     $window.ShowDialog() | Out-Null
 }
+
+message one 
