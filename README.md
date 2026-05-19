@@ -211,9 +211,3 @@
 <div align="center">
 <strong>ПРИЯТНОГО ПОЛЬЗОВАНИЯ!</strong>
 </div>
-
-test one 
-test two 
-test three
-test )
-message 
