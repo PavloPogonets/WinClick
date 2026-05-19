@@ -83,6 +83,7 @@
     if /i "%arg%"=="/RemoveHome" call :VisualOverlay & call :RemoveHome
     if /i "%arg%"=="/RemoveGallery" call :VisualOverlay & call :RemoveGallery
     if /i "%arg%"=="/RemoveNetwork" call :VisualOverlay & call :RemoveNetwork
+	if /i "%arg%"=="/RemoveArrows" call :VisualOverlay & call :RemoveArrows
     if /i "%arg%"=="/DarkTheme" call :VisualOverlay & call :DarkTheme
     if /i "%arg%"=="/SetWallpaper" call :VisualOverlay & call :SetWallpaper
     if /i "%arg%"=="/BlueIcons" call :VisualOverlay & call :BlueIcons
@@ -556,7 +557,7 @@ Rem Удаление Сеть из Проводника
 Rem Удалить стрелки с ярлыков
 	reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Shell Icons" /v 29 /t REG_SZ /d "%systemroot%\Blank.ico,0" /f >nul 2>&1
 	exit /b
-	
+
 :DarkTheme
 Rem Темная тема
 	reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Themes\Personalize" /v AppsUseLightTheme /t REG_DWORD /d 0 /f >nul 2>&1
