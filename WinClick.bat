@@ -151,8 +151,6 @@ PowerShell -encodedCommand JABkAGkAcwBtAE8AdQB0ACAAPQAgAGQAaQBzAG0AIAAvAG8AbgBsA
 chcp 65001 >nul
 exit /b
 
-
-
 :RemoveShellBags
 Rem Удаление ShellBags
 for %%k in (Bags BagMRU BagsMRU) do (
