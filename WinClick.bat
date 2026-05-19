@@ -551,6 +551,11 @@ Rem Удаление Галерея из Проводника
 Rem Удаление Сеть из Проводника 
 	reg add "HKCU\Software\Classes\CLSID\{F02C1A0D-BE21-4350-88B0-7367FC96EF3C}" /v "System.IsPinnedToNameSpaceTree" /t REG_DWORD /d 0 /f >nul 2>&1
 	exit /b
+
+:RemoveArrows
+Rem Удалить стрелки с ярлыков
+	reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Shell Icons" /v 29 /t REG_SZ /d "%systemroot%\Blank.ico,0" /f >nul 2>&1
+	exit /b
 	
 :DarkTheme
 Rem Темная тема
