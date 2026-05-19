@@ -195,6 +195,7 @@ Rem Удаление Помощника по удаленному подключ
 	exit /b
 	
 :RemoveEdge
+Rem Удаление браузера Edge
 	%TI% taskkill /f /im MicrosoftEdge.exe >nul 2>&1
 	%TI% taskkill /f /im MicrosoftEdgeUpdate.exe >nul 2>&1
 	%TI% taskkill /f /im MicrosoftEdgeWebView.exe >nul 2>&1
@@ -203,6 +204,7 @@ Rem Удаление Помощника по удаленному подключ
 	exit /b
 	
 :RemoveEdgeWebView
+Rem Удаление компонента Edge WebView2
 	%TI% taskkill /f /im MicrosoftEdge.exe >nul 2>&1
 	%TI% taskkill /f /im MicrosoftEdgeUpdate.exe >nul 2>&1
 	%TI% taskkill /f /im MicrosoftEdgeWebView.exe >nul 2>&1
@@ -211,6 +213,7 @@ Rem Удаление Помощника по удаленному подключ
 	exit /b
 	
 :RemoveDefender
+Rem Удаление Защитника Windows
 	timeout /t 2 /nobreak >nul 2>&1
 		start /b "" Helper /Overlay
 		start /wait "" "%~dp0\Work\DK\DefenderKiller.bat" /DelWD
@@ -514,10 +517,22 @@ Rem Если нет папки Driver на Рабочем столе
 exit /b
 	
 :InstallVC
+Rem Установка Visual C++
 	start "" /wait "%~dp0\Work\VisualCppRedist_AIO_x86_x64.exe" /aiA /gm2
+	for %%R in (
+    vcredist08_x64 vcredist08_x86 
+    vcredist09_x64 vcredist09_x86 
+    vcredist10_x64 vcredist10_x86  
+    vcredist11_x64 vcredist11_x86 
+    vcredist12_x64 vcredist12_x86 
+    vcredist14_x64 vcredist14_x86
+	) do (
+    reg delete "HKLM\Software\Microsoft\Windows\CurrentVersion\Uninstall\%%R" /f >nul 2>&1
+	)
 	exit /b
 	
 :InstallDX
+Rem Установка DirecX 9-11
 	start "" /wait "%~dp0\Work\DirectX.exe"
 	exit /b
 	

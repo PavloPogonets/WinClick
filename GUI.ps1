@@ -217,7 +217,7 @@ $tweaks = [ordered]@{
         @("Удалить Edge WebView2", "/RemoveEdgeWebView")
     )
     "Защитник Windows" = @(
-        ,@("Удалить Защитнике Windows (DefenderKiller)", "/RemoveDefender")
+        ,@("Удалить Защитник Windows (DefenderKiller)", "/RemoveDefender")
     )
 	"Компоненты Windows" = @(
         ,@("Удалить все дополнительные компоненты", "/RemoveComponents")
@@ -237,7 +237,7 @@ $tweaks = [ordered]@{
 		@("Отключить VBS и HVCI", "/DisableVBS"),
         @("Отключить GameDVR", "/DisableGameDVR"),
 		@("Установить схему питания Максимальная производительность", "/UltimatePerformance"),
-		@("Отключить функцию Возоновить", "/DisableResume")
+		@("Отключить функцию Возобновить", "/DisableResume")
     )
     "Центр обновления Windows" = @(
         @("Запретить установку драйверов из ЦО", "/DisableWUDrivers"),
